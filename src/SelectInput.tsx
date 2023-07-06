@@ -1,43 +1,49 @@
 import * as React from 'react';
-const Select: React.FC = () => {
+interface SelectedItemI {
+  value: string | number;
+  label: string;
+}
+
+export interface SelectProps {
+  value: SelectedItemI;
+  onSelect?: (newValue: SelectedItemI) => void;
+}
+
+const Select: React.FC = ({ value, onSelect, ...restProps }: SelectProps) => {
   const [opened, setOpened] = React.useState<boolean>(false);
   const handleClick = () => {
     setOpened(!opened);
   };
 
+  const handleMenuClick = (selectedValue: any) => {
+    if (onSelect) {
+      onSelect({ label: selectedValue.children, value: selectedValue.value });
+      setOpened(!opened);
+    }
+  };
+
   return (
     <div style={{ position: 'relative' }}>
-      <div
-        style={{
-          display: 'flex',
-          border: '1px solid',
-          width: '50%',
-          padding: '4px 12px',
-          borderRadius: '3px',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
-          cursor: 'pointer',
-          marginBottom: '5px',
-        }}
-        onClick={handleClick}
-      >
-        <p style={{ padding: 0, margin: 0 }}>value</p>
+      <div className="select-button" onClick={handleClick}>
+        <p style={{ padding: 0, margin: 0 }}>{value?.label}</p>
         <span>{opened ? '^' : 'v'}</span>
       </div>
       {opened && (
-        <ul
-          style={{
-            border: '1px solid',
-            width: '50%',
-            padding: '4px 12px',
-            borderRadius: '3px',
-            position: 'absolute',
-            top: '12px',
-          }}
-        >
-          <li style={{ listStyle: 'none' }}>Item 1</li>
-          <li style={{ listStyle: 'none' }}>Item 2</li>
-          <li style={{ listStyle: 'none' }}>Item 3</li>
+        <ul className="select-list-group">
+          <>
+            {restProps.children.map((child) => {
+              return (
+                <li
+                  className="select-list-item"
+                  data-value={child.props?.value}
+                  onClick={(e) => handleMenuClick(child.props)}
+                  role="option"
+                >
+                  {child}
+                </li>
+              );
+            })}
+          </>
         </ul>
       )}
     </div>
